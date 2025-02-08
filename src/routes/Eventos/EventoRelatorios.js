@@ -113,25 +113,35 @@ const API_KEY = "80d9f34e-82a5-45c7-b628-4d05a7f74f3d";
 const ADMIN_PHONE = "5519986082719";
 
 router.post('/send-message', async (req, res) => {
+  console.log("Rota /send-message acionada");
   const { name, email, phone, message } = req.body;
+  console.log("Dados recebidos:", req.body);
 
   if (!name || !email || !phone || !message) {
-    return res.status(400).json({ message: 'Todos os campos (name, email, phone, message) são obrigatórios.' });
+    console.log("Validação falhou: campo(s) obrigatório(s) ausentes");
+    return res.status(400).json({
+      message: 'Todos os campos (name, email, phone, message) são obrigatórios.'
+    });
   }
 
   try {
     const userMessagePayload = {
       apikey: API_KEY,
       phone_number: ADMIN_PHONE,
-      contact_phone_number: `55${phone.replace(/\D/g, '')}`, 
+      contact_phone_number: `55${phone.replace(/\D/g, '')}`,
       message_custom_id: "user-message",
       message_type: "text",
       message_body: `Olá ${name}, recebemos sua mensagem e logo um atendente entrará em contato com você!`
     };
 
-    await axios.post(WHATSAPP_API_URL, userMessagePayload, { headers: { "Content-Type": "application/json" } });
+    console.log("Enviando mensagem para o usuário com o payload:", userMessagePayload);
+    const userResponse = await axios.post(
+      WHATSAPP_API_URL,
+      userMessagePayload,
+      { headers: { "Content-Type": "application/json" } }
+    );
+    console.log("Resposta do envio da mensagem para o usuário:", userResponse.data);
 
-    // Enviar as informações do formulário para o número do suporte
     const adminMessagePayload = {
       apikey: API_KEY,
       phone_number: ADMIN_PHONE,
@@ -141,13 +151,23 @@ router.post('/send-message', async (req, res) => {
       message_body: `📩 *Novo contato recebido!*\n\n👤 *Nome:* ${name}\n📧 *E-mail:* ${email}\n📞 *Telefone:* ${phone}\n💬 *Mensagem:* ${message}`
     };
 
-    await axios.post(WHATSAPP_API_URL, adminMessagePayload, { headers: { "Content-Type": "application/json" } });
+    console.log("Enviando mensagem para o admin com o payload:", adminMessagePayload);
+    const adminResponse = await axios.post(
+      WHATSAPP_API_URL,
+      adminMessagePayload,
+      { headers: { "Content-Type": "application/json" } }
+    );
+    console.log("Resposta do envio da mensagem para o admin:", adminResponse.data);
 
     res.status(200).json({ message: "Mensagens enviadas com sucesso." });
   } catch (error) {
-    console.error("Erro ao enviar mensagens:", error.response ? error.response.data : error.message);
+    console.error(
+      "Erro ao enviar mensagens:",
+      error.response ? error.response.data : error.message
+    );
     res.status(500).json({ message: "Erro ao enviar mensagens." });
   }
 });
+
 
 module.exports = router;
