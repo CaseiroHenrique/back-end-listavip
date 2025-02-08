@@ -109,8 +109,8 @@ router.post('/event-info', async (req, res) => {
 const axios = require('axios');
 
 const WHATSAPP_API_URL = "https://app.whatsgw.com.br/api/WhatsGw/Send";
-const API_KEY = "06a9184e-e67c-4ade-9184-9f956bfa02a2";
-const ADMIN_PHONE = "5519986082719"; // Número que receberá as informações do formulário
+const API_KEY = "80d9f34e-82a5-45c7-b628-4d05a7f74f3d";
+const ADMIN_PHONE = "5519986082719";
 
 router.post('/send-message', async (req, res) => {
   const { name, email, phone, message } = req.body;
@@ -120,11 +120,10 @@ router.post('/send-message', async (req, res) => {
   }
 
   try {
-    // Enviar a mensagem automática para o usuário informando que um atendente entrará em contato
     const userMessagePayload = {
       apikey: API_KEY,
       phone_number: ADMIN_PHONE,
-      contact_phone_number: `55${phone.replace(/\D/g, '')}`, // Pode ser um número fixo da empresa
+      contact_phone_number: `55${phone.replace(/\D/g, '')}`, 
       message_custom_id: "user-message",
       message_type: "text",
       message_body: `Olá ${name}, recebemos sua mensagem e logo um atendente entrará em contato com você!`
