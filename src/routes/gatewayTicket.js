@@ -326,7 +326,7 @@ router.get('/payment-statusticket/:paymentId', async (req, res) => {
         }
       }
 
-      const qrData = `https://back-end-listavip-production.up.railway.app/api/validate-entry?client_id=${clientId}&event_id=${event_id}`;
+      const qrData = `https://listavip-backend2.ysrbxw.easypanel.host/api/validate-entry?client_id=${clientId}&event_id=${event_id}`;
       const qrCodeImage = await QRCode.toDataURL(qrData);
 
       // Remover os dados temporários
