@@ -1,0 +1,104 @@
+require('dotenv').config();
+const express = require('express');
+const app = express();
+const cors = require('cors');
+const { port, webhookUrl, allowedOrigins } = require('./config');
+const { connect } = require('./config/database');
+const register = require('./routes/userControl/register');
+const login = require('./routes/userControl/login');
+const userInfo = require('./routes/userControl/userInfo');
+const help = require('./routes/userControl/help');
+const logout = require('./routes/userControl/logout');
+const reconnect = require('./routes/userControl/reconnect');
+const forgot = require('./routes/userControl/forgot');
+const reset = require('./routes/userControl/reset');
+const PromoterList = require('./routes/promoters/PromoterList');
+const PromoterRelatorio = require('./routes/promoters/PromoterRelatorio');
+const List = require('./routes/userControl/list');
+const CadastroPromoter = require('./routes/promoters/Register');
+const ClientesLista = require('./routes/Clientes/ClientesLista');
+const gateway = require('./routes/gateway');
+const LoginPromoter = require('./routes/promoters/Login');
+const ClientesRegistro = require('./routes/Clientes/ClientesRegistro');
+const Saldo = require('./routes/Saldo/Saldo');
+const uploadRoute = require('./routes/Upload');
+const createEventRoute = require('./routes/Eventos/EventoCriar');
+const View = require('./routes/View');
+const EventoList = require('./routes/Eventos/EventoList');
+const EventoRelatorio = require('./routes/Eventos/EventoRelatorios');
+const EventoAniversariantes = require('./routes/Eventos/EventoAniversariantes');
+const LoginAdmin = require('./routes/Admin/loginAdmin');
+const Saques = require('./routes/Admin/saques');
+const aprovarSaque = require('./routes/Admin/aprovarSaque');
+const Clientes = require('./routes/Admin/Clientes');
+const Relatorios = require('./routes/Admin/Relatorios');
+const Config = require('./routes/Admin/Config');
+const SendEmail = require('./routes/Eventos/SendEmail');
+const gatewayTicket = require('./routes/gatewayTicket');
+const AniversarioList = require('./routes/Eventos/AniversarioList');
+
+const checkOrigin = (req, res, next) => {
+  const origin = req.headers.origin;
+  next();
+};
+
+async function main() {
+  const pool = await connect();
+
+  app.use(cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    optionsSuccessStatus: 200
+  }));
+
+  app.use(express.json());
+
+  app.use('/api', checkOrigin, (req, res, next) => {
+    req.db = pool;
+    next();
+  });
+
+  app.use('/api', uploadRoute);
+  app.use('/api', register);
+  app.use('/api', createEventRoute);
+  app.use('/api', EventoAniversariantes);
+  app.use('/api', ClientesLista);
+  app.use('/api', CadastroPromoter);
+  app.use('/api', PromoterList);
+  app.use('/api', LoginPromoter);
+  app.use('/api', EventoList);
+  app.use('/api', login);
+  app.use('/api', Saldo);
+  app.use('/api', List);
+  app.use('/api', userInfo);
+  app.use('/api', View);
+  app.use('/api', logout);
+  app.use('/api', ClientesRegistro);
+  app.use('/api', PromoterRelatorio);
+  app.use('/api', reconnect);
+  app.use('/api', EventoRelatorio);
+  app.use('/api', forgot);
+  app.use('/api', reset);
+  app.use('/api', LoginAdmin);
+  app.use('/api', Saques);
+  app.use('/api', aprovarSaque);
+  app.use('/api', Clientes);
+  app.use('/api', Relatorios);
+  app.use('/api', Config);
+  app.use('/api', SendEmail);
+  app.use('/api', gateway);
+  app.use('/api', gatewayTicket);
+  app.use('/api', help);
+  app.use('/api', AniversarioList);
+
+  app.listen(port, '0.0.0.0', async () => {
+    console.log(`Servidor rodando em http://0.0.0.0:${port}`);
+  });
+}
+
+main().catch(console.error);
