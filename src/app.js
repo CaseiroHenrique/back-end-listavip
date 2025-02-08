@@ -96,8 +96,8 @@ async function main() {
   app.use('/api', help);
   app.use('/api', AniversarioList);
 
-  app.listen(port, '0.0.0.0', async () => {
-    console.log(`Servidor rodando em http://0.0.0.0:${port}`);
+  app.listen(port, async () => {
+    console.log(`Servidor rodando em ${port}`);
   });
 }
 
