@@ -40,7 +40,7 @@ const AniversarioList = require('./routes/Eventos/AniversarioList');
 const checkOrigin = (req, res, next) => {
     const origin = req.headers.origin;
     next();
-};
+;
 
 async function main() {
     const pool = await connect();
