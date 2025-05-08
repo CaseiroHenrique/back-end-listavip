@@ -1,9 +1,9 @@
 module.exports = {
     dbConfig: {
-        host: "82.180.153.154",
-        user: "u878394960_listavip",
-        password: "9wCk~MDqG>@^",
-        database: "u878394960_listavip",
+        host: "145.223.29.205",
+        user: "listavip",
+        password: "listavip",
+        database: "listavip",
         waitForConnections: true, 
         connectionLimit: 10, 
         queueLimit: 0 
