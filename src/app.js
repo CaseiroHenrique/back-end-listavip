@@ -45,16 +45,20 @@ const checkOrigin = (req, res, next) => {
 async function main() {
     const pool = await connect();
 
-    app.use(cors({
-        origin: (origin, callback) => {
+        app.use(cors({    
+          origin: (origin, callback) => {
+            console.log(`→ CORS origin check: ${origin} (URL: ${origin ? '' : req?.originalUrl})`);
             if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
+              console.log(`✔️  Origin autorizada: ${origin}`);
+              callback(null, true);
             } else {
-                callback(new Error('Not allowed by CORS'));
+              console.log(`❌  Origin bloqueada pelo CORS: ${origin}`);
+              callback(new Error('Not allowed by CORS'));
             }
-        },
-        optionsSuccessStatus: 200
-    }));
+          },
+          optionsSuccessStatus: 200
+        }));
+
 
     app.use(express.json());
 
