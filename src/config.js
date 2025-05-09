@@ -18,7 +18,7 @@ module.exports = {
     
     allowedOrigins: [
         'http://localhost:1234',
-        'http://localhost:3001',
+        'http://localhost:3000',
         'http://192.168.15.53:1234',
         'https://listavip.conexaocode.com'
     ],
