@@ -3,38 +3,87 @@ const router = express.Router();
 const { connect } = require('../../config/database');
 
 router.post('/list-events', async (req, res) => {
-    const { company_id } = req.body;
+  const { company_id } = req.body;
 
-    if (!company_id) {
-        return res.status(400).json({ message: 'ID da empresa é obrigatório.' });
+  if (!company_id) {
+    return res.status(400).json({ message: 'ID da empresa é obrigatório.' });
+  }
+
+  try {
+    const pool = await connect();
+
+    const [rows] = await pool.query(
+      `
+      SELECT
+        id,
+        event_name      AS title,
+        event_image_url AS image,
+        event_date      AS date,
+        event_time      AS time,
+        event_type      AS type,
+        category,
+        event_location  AS location,
+        max_capacity,
+        event_color     AS color,
+        additional_images,
+        attractions,
+        tickets,
+        social_links,
+        event_batch,
+        guest_list,
+        created_at,
+        updated_at
+      FROM events
+      WHERE company_id = ?
+      ORDER BY
+        CASE
+          WHEN event_date >= CURDATE() THEN 0
+          ELSE 1
+        END,
+        event_date ASC
+      `,
+      [company_id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Nenhum evento encontrado para essa empresa.' });
     }
 
-    try {
-        const pool = await connect();
+    // Converte campos JSON (se vierem como string) em objetos JS
+    const events = rows.map(evt => ({
+      id:               evt.id,
+      title:            evt.title,
+      image:            evt.image,
+      date:             evt.date,   // "YYYY-MM-DD"
+      time:             evt.time,   // "HH:MM:SS" ou null
+      type:             evt.type,
+      category:         evt.category,
+      location:         evt.location,
+      max_capacity:     evt.max_capacity,
+      color:            evt.color,
+      additional_images: Array.isArray(evt.additional_images)
+                          ? evt.additional_images
+                          : (evt.additional_images ? JSON.parse(evt.additional_images) : []),
+      attractions:      Array.isArray(evt.attractions)
+                          ? evt.attractions
+                          : (evt.attractions ? JSON.parse(evt.attractions) : []),
+      tickets:          typeof evt.tickets === 'object'
+                          ? evt.tickets
+                          : (evt.tickets ? JSON.parse(evt.tickets) : {}),
+      social_links:     typeof evt.social_links === 'object'
+                          ? evt.social_links
+                          : (evt.social_links ? JSON.parse(evt.social_links) : {}),
+      event_batch:      evt.event_batch,
+      guest_list:       evt.guest_list,
+      created_at:       evt.created_at,
+      updated_at:       evt.updated_at
+    }));
 
-        const [events] = await pool.query(
-            `SELECT id, company_id, event_name, event_date, event_type, category, 
-                    ticket_price_men, ticket_price_women, event_color, event_image_url, created_at, updated_at
-             FROM events
-             WHERE company_id = ?
-             ORDER BY 
-                 CASE 
-                     WHEN event_date >= CURDATE() THEN 0  -- Eventos futuros e atuais
-                     ELSE 1  -- Eventos passados
-                 END,
-                 event_date ASC`, // Ordena eventos futuros por data ascendente, seguidos dos eventos passados
-            [company_id]
-        );
-
-        if (events.length === 0) {
-            return res.status(404).json({ message: 'Nenhum evento encontrado para essa empresa.' });
-        }
-
-        res.status(200).json(events);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erro ao listar os eventos.' });
-    }
+    res.status(200).json({ events });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro ao listar os eventos.' });
+  }
 });
 
 
