@@ -75,29 +75,44 @@ router.get('/birthday-details/:id', async (req, res) => {
 
 
 router.get('/list-events/:company_id', async (req, res) => {
-    const { company_id } = req.params;
+  const { company_id } = req.params;
 
-    if (!company_id) {
-        return res.status(400).json({ message: 'O ID da empresa é obrigatório.' });
+  if (!company_id) {
+    return res.status(400).json({ message: 'O ID da empresa é obrigatório.' });
+  }
+
+  try {
+    const pool = await connect();
+
+    const [events] = await pool.query(
+      `SELECT 
+         id,
+         event_name      AS title,
+         event_image_url AS image,
+         event_date      AS date
+       FROM events
+       WHERE company_id = ?
+       ORDER BY event_date DESC`,
+      [company_id]
+    );
+
+    if (events.length === 0) {
+      return res.status(404).json({ message: 'Nenhum evento encontrado para esta empresa.' });
     }
 
-    try {
-        const pool = await connect();
+    // Se quiser convertê-los em objetos mais amigáveis ao front:
+    const formatted = events.map(evt => ({
+      id: evt.id,
+      title: evt.title,
+      image: evt.image,    // pode ser null ou URL
+      date: evt.date       // string YYYY-MM-DD
+    }));
 
-        const [events] = await pool.query(
-            `SELECT id, event_name FROM events WHERE company_id = ?`,
-            [company_id]
-        );
-
-        if (events.length === 0) {
-            return res.status(404).json({ message: 'Nenhum evento encontrado para esta empresa.' });
-        }
-
-        res.status(200).json({ events });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erro ao buscar os eventos.' });
-    }
+    res.status(200).json({ events: formatted });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro ao buscar os eventos.' });
+  }
 });
 
 router.get('/list-birthdays/:company_id', async (req, res) => {
