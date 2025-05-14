@@ -36,6 +36,7 @@ const Config = require('./routes/Admin/Config');
 const SendEmail = require('./routes/Eventos/SendEmail');
 const gatewayTicket = require('./routes/gatewayTicket');
 const AniversarioList = require('./routes/Eventos/AniversarioList');
+const path    = require('path');
 
 const checkOrigin = (req, res, next) => {
     const origin = req.headers.origin;

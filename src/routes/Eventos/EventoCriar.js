@@ -15,6 +15,7 @@ const storage = multer.diskStorage({
     cb(null, `${Date.now()}_${file.originalname}`);
   }
 });
+
 const upload = multer({ storage });
 
 // agora aceitamos multipart/form-data com campo 'event_image'
