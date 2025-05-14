@@ -38,71 +38,71 @@ const gatewayTicket = require('./routes/gatewayTicket');
 const AniversarioList = require('./routes/Eventos/AniversarioList');
 
 const checkOrigin = (req, res, next) => {
-    const origin = req.headers.origin;
-    next();
+  const origin = req.headers.origin;
+  next();
 };
 
 async function main() {
-    const pool = await connect();
+  const pool = await connect();
 
-        app.use(cors({    
-          origin: (origin, callback) => {
-            console.log(`→ CORS origin check: ${origin} (URL: ${origin ? '' : req?.originalUrl})`);
-            if (!origin || allowedOrigins.includes(origin)) {
-              console.log(`✔️  Origin autorizada: ${origin}`);
-              callback(null, true);
-            } else {
-              console.log(`❌  Origin bloqueada pelo CORS: ${origin}`);
-              callback(new Error('Not allowed by CORS'));
-            }
-          },
-          optionsSuccessStatus: 200
-        }));
+  app.use(cors({
+    origin: (origin, callback) => {
+      console.log(`→ CORS origin check: ${origin}`);
+      if (!origin || allowedOrigins.includes(origin)) {
+        console.log(`✔️  Origin autorizada: ${origin}`);
+        callback(null, true);
+      } else {
+        console.log(`❌  Origin bloqueada pelo CORS: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    optionsSuccessStatus: 200
+  }));
 
 
-    app.use(express.json());
+  app.use(express.json());
 
-    app.use('/api', checkOrigin, (req, res, next) => {
-        req.db = pool;
-        next();
-    });
+  app.use('/api', checkOrigin, (req, res, next) => {
+    req.db = pool;
+    next();
+  });
 
-    app.use('/api', uploadRoute);
-    app.use('/api', register);
-    app.use('/api', createEventRoute);
-    app.use('/api', EventoAniversariantes);
-    app.use('/api', ClientesLista);
-    app.use('/api', CadastroPromoter);
-    app.use('/api', PromoterList);
-    app.use('/api', LoginPromoter);
-    app.use('/api', EventoList);
-    app.use('/api', login);
-    app.use('/api', Saldo);
-    app.use('/api', List);
-    app.use('/api', userInfo);
-    app.use('/api', View);
-    app.use('/api', logout);
-    app.use('/api', ClientesRegistro);
-    app.use('/api', PromoterRelatorio);
-    app.use('/api', reconnect);
-    app.use('/api', EventoRelatorio);
-    app.use('/api', forgot);
-    app.use('/api', reset);
-    app.use('/api', LoginAdmin);
-    app.use('/api', Saques);
-    app.use('/api', aprovarSaque);
-    app.use('/api', Clientes);
-    app.use('/api', Relatorios);
-    app.use('/api', Config);
-    app.use('/api', SendEmail);
-    app.use('/api', gateway);
-    app.use('/api', gatewayTicket);
-    app.use('/api', help);
-    app.use('/api', AniversarioList);
+  app.use('/api', uploadRoute);
+  app.use('/api', register);
+  app.use('/api', createEventRoute);
+  app.use('/api', EventoAniversariantes);
+  app.use('/api', ClientesLista);
+  app.use('/api', CadastroPromoter);
+  app.use('/api', PromoterList);
+  app.use('/api', LoginPromoter);
+  app.use('/api', EventoList);
+  app.use('/api', login);
+  app.use('/api', Saldo);
+  app.use('/api', List);
+  app.use('/api', userInfo);
+  app.use('/api', View);
+  app.use('/api', logout);
+  app.use('/api', ClientesRegistro);
+  app.use('/api', PromoterRelatorio);
+  app.use('/api', reconnect);
+  app.use('/api', EventoRelatorio);
+  app.use('/api', forgot);
+  app.use('/api', reset);
+  app.use('/api', LoginAdmin);
+  app.use('/api', Saques);
+  app.use('/api', aprovarSaque);
+  app.use('/api', Clientes);
+  app.use('/api', Relatorios);
+  app.use('/api', Config);
+  app.use('/api', SendEmail);
+  app.use('/api', gateway);
+  app.use('/api', gatewayTicket);
+  app.use('/api', help);
+  app.use('/api', AniversarioList);
 
-    app.listen(port, async () => {
-        console.log(`Servidor rodando na porta ${port}`);
-    });
+  app.listen(port, async () => {
+    console.log(`Servidor rodando na porta ${port}`);
+  });
 }
 
 main().catch(console.error);
