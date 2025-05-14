@@ -42,6 +42,8 @@ const checkOrigin = (req, res, next) => {
     next();
 };
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 async function main() {
     const pool = await connect();
 

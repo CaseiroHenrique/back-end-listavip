@@ -2,8 +2,20 @@ const express = require('express');
 const router = express.Router();
 const { connect } = require('../../config/database');
 
-// POST /api/create-event
-router.post('/create-event', async (req, res) => {
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, '../../uploads');
+    if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath);
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}_${file.originalname}`);
+  }
+});
+const upload = multer({ storage });
+
+// agora aceitamos multipart/form-data com campo 'event_image'
+router.post('/create-event', upload.single('event_image'), async (req, res) => {
   const {
     company_id,
     event_name,
@@ -15,7 +27,6 @@ router.post('/create-event', async (req, res) => {
     max_capacity,
     category,
     event_color,
-    event_image_url,
     additional_images,
     attractions,
     tickets,
@@ -24,13 +35,19 @@ router.post('/create-event', async (req, res) => {
     guest_list
   } = req.body;
 
+  // Monta a URL da imagem (ou usa a que vier no body, se não mandaram arquivo)
+  const event_image_url = req.file
+    ? `/uploads/${req.file.filename}`
+    : (req.body.event_image_url || null);
+
   if (!company_id || !event_name || !event_date || !event_type) {
-    return res.status(400).json({ message: 'company_id, event_name, event_date e event_type são obrigatórios.' });
+    return res.status(400).json({
+      message: 'company_id, event_name, event_date e event_type são obrigatórios.'
+    });
   }
 
   try {
     const pool = await connect();
-
     const insertQuery = `
       INSERT INTO events (
         company_id,
@@ -54,7 +71,6 @@ router.post('/create-event', async (req, res) => {
         updated_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     `;
-
     const params = [
       company_id,
       event_name,
@@ -66,7 +82,7 @@ router.post('/create-event', async (req, res) => {
       max_capacity || null,
       category || null,
       event_color || '#E1FF01',
-      event_image_url || null,
+      event_image_url,
       additional_images ? JSON.stringify(additional_images) : null,
       attractions ? JSON.stringify(attractions) : null,
       tickets ? JSON.stringify(tickets) : null,
@@ -76,12 +92,17 @@ router.post('/create-event', async (req, res) => {
     ];
 
     const [result] = await pool.query(insertQuery, params);
-    res.status(201).json({ message: 'Evento criado com sucesso!', eventId: result.insertId });
+    res.status(201).json({
+      message: 'Evento criado com sucesso!',
+      eventId: result.insertId,
+      imageUrl: event_image_url
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Erro ao criar o evento.' });
   }
 });
+
 
 // GET /api/event/:event_id
 router.get('/event/:event_id', async (req, res) => {
