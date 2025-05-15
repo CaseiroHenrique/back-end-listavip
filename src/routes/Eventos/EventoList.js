@@ -87,8 +87,8 @@ router.post('/list-events', async (req, res) => {
 });
 
 router.get('/upcoming-events', async (req, res) => {
+  console.log('📣 GET /upcoming-events recebido — query:', req.query);
   const db = req.db;
-  // parse do limit, default 3
   const limit = parseInt(req.query.limit, 10) || 3;
 
   try {
