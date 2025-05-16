@@ -5,7 +5,7 @@ const CryptoJS = require('crypto-js');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-const encryptionKey = 'bW9kZWxpbmcgdGhlIGZ1dHVyZSB3aXRoIGFuIGF1dG9tYXRlZCBzZWN1cml0eSBzZWNyZXQga2V5Cg=='; // Chave secreta
+const encryptionKey = 'bW9kZWxpbmcgdGhlIGZ1dHVyZSB3aXRoIGFuIGF1dG9tYXRlZCBzZWN1cml0eSBzZWNyZXQga2V5Cg==';
 
 router.get('/system-info', async (req, res) => {
     const connection = req.db;
