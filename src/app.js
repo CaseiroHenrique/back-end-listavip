@@ -45,7 +45,7 @@ const checkOrigin = (req, res, next) => {
 async function main() {
   const pool = await connect();
 
-    app.use(cors({
+  app.use(cors({
     origin: (origin, callback) => {
       console.log(`→ CORS origin check: ${origin}`);
       if (!origin || allowedOrigins.includes(origin)) {
@@ -58,35 +58,10 @@ async function main() {
     },
     optionsSuccessStatus: 200
   }));
+
+
   app.use(express.json());
 
-  // ─── Servir JSON em /upcoming-events sem precisar de /api ──────────
-  app.get('/upcoming-events', async (req, res) => {
-    console.log('📣 GET /upcoming-events (root) recebido — query:', req.query);
-    const limit = parseInt(req.query.limit, 10) || 3;
-    try {
-      const [rows] = await pool.query(
-        `SELECT
-           id,
-           event_name      AS title,
-           event_description AS description,
-           event_image_url AS image,
-           event_date,
-           event_time
-         FROM events
-         WHERE event_date >= CURDATE()
-         ORDER BY event_date ASC
-         LIMIT ?`,
-        [limit]
-      );
-      return res.json({ upcoming: rows });
-    } catch (err) {
-      console.error('Erro ao buscar upcoming-events root:', err);
-      return res.status(500).json({ message: 'Erro interno' });
-    }
-  });
-
-  // a partir daqui continuam as rotas com /api…
   app.use('/api', checkOrigin, (req, res, next) => {
     req.db = pool;
     next();
