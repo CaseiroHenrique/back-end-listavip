@@ -4,20 +4,24 @@ FROM node:18-alpine
 # Define o diretório de trabalho no container
 WORKDIR /app
 
-# Copia os arquivos do package.json e package-lock.json primeiro
-COPY package*.json ./
+# Garante que a pasta de uploads exista antes do runtime
+RUN mkdir -p /app/uploads
 
-# Instala as dependências de produção
+# Copia os arquivos de dependências e instala
+COPY package*.json ./
 RUN npm install --omit=dev
 
-# Copia todo o código da aplicação para dentro do container
+# Copia todo o código da aplicação
 COPY . .
 
-# Define a variável de ambiente do Heroku
+# Declara /app/uploads como volume persistente
+VOLUME ["/app/uploads"]
+
+# Define a variável de ambiente de porta
 ENV PORT=3000
 
-# Expõe a porta que será usada pela aplicação
+# Exponha a porta usada pela aplicação
 EXPOSE $PORT
 
-# Comando para rodar a aplicação
+# Comando para iniciar a aplicação
 CMD ["node", "src/app.js"]
