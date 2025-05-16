@@ -36,6 +36,7 @@ const Config = require('./routes/Admin/Config');
 const SendEmail = require('./routes/Eventos/SendEmail');
 const gatewayTicket = require('./routes/gatewayTicket');
 const AniversarioList = require('./routes/Eventos/AniversarioList');
+const Upcoming = require('./routes/Eventos/Upcoming');
 
 const checkOrigin = (req, res, next) => {
   const origin = req.headers.origin;
@@ -68,6 +69,7 @@ async function main() {
   });
 
   app.use('/api', uploadRoute);
+  app.use('/api', Upcoming);
   app.use('/api', register);
   app.use('/api', createEventRoute);
   app.use('/api', EventoAniversariantes);
