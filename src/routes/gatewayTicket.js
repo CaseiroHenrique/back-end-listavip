@@ -97,7 +97,6 @@ router.post('/increment-guest-count', async (req, res) => {
   try {
     const connection = await db.connect();
 
-    // Verificar se existe um registro na tabela `birthdays` com o token fornecido
     const [birthdayResult] = await connection.query(
       `SELECT id, guests_count FROM birthdays WHERE token = ? LIMIT 1`,
       [tokenaniversario]
